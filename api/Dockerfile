@@ -1,0 +1,15 @@
+FROM golang:1.22-alpine AS builder
+RUN mkdir /builder
+ADD . /build/
+WORKDIR /build
+RUN go build -o main .
+
+#stage 2
+FROM alpine:latest AS final
+RUN adduser -S -D -H -h /app appuser
+USER appuser
+COPY . /app
+COPY --from=builder /build/main /app/
+WORKDIR /app
+EXPOSE 3000
+CMD [ "./main" ]
